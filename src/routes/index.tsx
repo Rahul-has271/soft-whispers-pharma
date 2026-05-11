@@ -94,7 +94,7 @@ function useAmbientMusic() {
   const [on, setOn] = useState(false);
   const ctxRef = useRef<AudioContext | null>(null);
   const masterRef = useRef<GainNode | null>(null);
-  const nodesRef = useRef<{ osc: OscillatorNode; gain: GainNode }[]>([]);
+  const timersRef = useRef<number[]>([]);
 
   const start = () => {
     if (ctxRef.current) return;
@@ -106,40 +106,60 @@ function useAmbientMusic() {
     master.connect(ctx.destination);
     masterRef.current = master;
 
-    // Soft chord pad: A minor 7 (A, C, E, G) two octaves
-    const freqs = [220, 261.63, 329.63, 392, 523.25];
-    freqs.forEach((f, i) => {
-      const osc = ctx.createOscillator();
-      osc.type = i % 2 ? "sine" : "triangle";
-      osc.frequency.value = f;
-      const g = ctx.createGain();
-      g.gain.value = 0.07;
-      // gentle LFO for shimmer
-      const lfo = ctx.createOscillator();
-      lfo.frequency.value = 0.1 + i * 0.05;
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.value = 0.02;
-      lfo.connect(lfoGain).connect(g.gain);
-      lfo.start();
-      osc.connect(g).connect(master);
-      osc.start();
-      nodesRef.current.push({ osc, gain: g });
-    });
+    // Cute music-box twinkle melody in C major (Twinkle-style sweet arpeggio)
+    // Notes: C5 D5 E5 G5 A5 C6 — sparkly bell tones
+    const N = { C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880, B5: 987.77, C6: 1046.5, E6: 1318.5, G6: 1568 };
+    const melody: Array<[number, number]> = [
+      [N.C5, 0.4], [N.E5, 0.4], [N.G5, 0.4], [N.C6, 0.6],
+      [N.A5, 0.4], [N.G5, 0.4], [N.E5, 0.6],
+      [N.D5, 0.4], [N.F5, 0.4], [N.A5, 0.4], [N.C6, 0.6],
+      [N.G5, 0.4], [N.E5, 0.4], [N.C5, 0.8],
+      [N.E5, 0.4], [N.G5, 0.4], [N.C6, 0.4], [N.E6, 0.6],
+      [N.D5, 0.4], [N.G5, 0.4], [N.B5, 0.6],
+      [N.C5, 0.4], [N.E5, 0.4], [N.G5, 0.4], [N.C6, 1.0],
+    ];
+
+    const playNote = (freq: number, when: number, dur: number) => {
+      const c = ctxRef.current; const m = masterRef.current;
+      if (!c || !m) return;
+      // bell: sine fundamental + soft sine harmonic
+      const o1 = c.createOscillator(); o1.type = "sine"; o1.frequency.value = freq;
+      const o2 = c.createOscillator(); o2.type = "sine"; o2.frequency.value = freq * 2;
+      const g = c.createGain();
+      g.gain.setValueAtTime(0, when);
+      g.gain.linearRampToValueAtTime(0.22, when + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, when + dur);
+      const g2 = c.createGain(); g2.gain.value = 0.08;
+      o1.connect(g).connect(m);
+      o2.connect(g2).connect(g);
+      o1.start(when); o2.start(when);
+      o1.stop(when + dur + 0.05); o2.stop(when + dur + 0.05);
+    };
+
+    const loop = () => {
+      const c = ctxRef.current; if (!c) return;
+      let t = c.currentTime + 0.1;
+      let total = 0;
+      melody.forEach(([f, d]) => { playNote(f, t + total, d * 1.4); total += d; });
+      const id = window.setTimeout(loop, total * 1000);
+      timersRef.current.push(id);
+    };
+    loop();
 
     // soft fade in
-    master.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 3);
+    master.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 2);
   };
 
   const stop = () => {
     const ctx = ctxRef.current;
     const master = masterRef.current;
     if (!ctx || !master) return;
+    timersRef.current.forEach((id) => clearTimeout(id));
+    timersRef.current = [];
     master.gain.cancelScheduledValues(ctx.currentTime);
     master.gain.linearRampToValueAtTime(0, ctx.currentTime + 1);
     setTimeout(() => {
-      nodesRef.current.forEach(({ osc }) => { try { osc.stop(); } catch {} });
-      nodesRef.current = [];
-      ctx.close();
+      try { ctx.close(); } catch {}
       ctxRef.current = null;
       masterRef.current = null;
     }, 1100);
