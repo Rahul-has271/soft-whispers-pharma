@@ -106,48 +106,75 @@ function useAmbientMusic() {
     master.connect(ctx.destination);
     masterRef.current = master;
 
-    // Cute music-box twinkle melody in C major (Twinkle-style sweet arpeggio)
-    // Notes: C5 D5 E5 G5 A5 C6 — sparkly bell tones
-    const N = { C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880, B5: 987.77, C6: 1046.5, E6: 1318.5, G6: 1568 };
+    // Slow emotional piano-like melody in A minor — heartfelt, tender
+    const N = {
+      A3: 220, C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392,
+      A4: 440, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880,
+    };
+    // [freq, beats] — beat = 0.6s. Uses rests via freq=0.
     const melody: Array<[number, number]> = [
-      [N.C5, 0.4], [N.E5, 0.4], [N.G5, 0.4], [N.C6, 0.6],
-      [N.A5, 0.4], [N.G5, 0.4], [N.E5, 0.6],
-      [N.D5, 0.4], [N.F5, 0.4], [N.A5, 0.4], [N.C6, 0.6],
-      [N.G5, 0.4], [N.E5, 0.4], [N.C5, 0.8],
-      [N.E5, 0.4], [N.G5, 0.4], [N.C6, 0.4], [N.E6, 0.6],
-      [N.D5, 0.4], [N.G5, 0.4], [N.B5, 0.6],
-      [N.C5, 0.4], [N.E5, 0.4], [N.G5, 0.4], [N.C6, 1.0],
+      [N.A4, 1.5], [N.C5, 0.5], [N.E5, 1], [N.D5, 1],
+      [N.C5, 1.5], [N.B4, 0.5], [N.A4, 2],
+      [N.G4, 1.5], [N.A4, 0.5], [N.C5, 1], [N.B4, 1],
+      [N.A4, 2], [0, 1],
+      [N.E5, 1], [N.D5, 1], [N.C5, 1], [N.B4, 1],
+      [N.A4, 1.5], [N.G4, 0.5], [N.A4, 3],
+      [0, 1],
     ];
+    // Soft chord pad beneath — Am, F, C, G
+    const chords: Array<number[]> = [
+      [N.A3, N.E4, N.A4], [N.F4, N.A4, N.C5],
+      [N.C4, N.E4, N.G4], [N.G4, N.B4, N.D5],
+    ];
+    const beat = 0.6;
 
     const playNote = (freq: number, when: number, dur: number) => {
       const c = ctxRef.current; const m = masterRef.current;
-      if (!c || !m) return;
-      // bell: sine fundamental + soft sine harmonic
-      const o1 = c.createOscillator(); o1.type = "sine"; o1.frequency.value = freq;
+      if (!c || !m || freq <= 0) return;
+      // soft piano: triangle + sine harmonic, slow attack, long release
+      const o1 = c.createOscillator(); o1.type = "triangle"; o1.frequency.value = freq;
       const o2 = c.createOscillator(); o2.type = "sine"; o2.frequency.value = freq * 2;
       const g = c.createGain();
       g.gain.setValueAtTime(0, when);
-      g.gain.linearRampToValueAtTime(0.22, when + 0.01);
+      g.gain.linearRampToValueAtTime(0.28, when + 0.08);
       g.gain.exponentialRampToValueAtTime(0.001, when + dur);
-      const g2 = c.createGain(); g2.gain.value = 0.08;
+      const g2 = c.createGain(); g2.gain.value = 0.05;
       o1.connect(g).connect(m);
       o2.connect(g2).connect(g);
       o1.start(when); o2.start(when);
-      o1.stop(when + dur + 0.05); o2.stop(when + dur + 0.05);
+      o1.stop(when + dur + 0.1); o2.stop(when + dur + 0.1);
+    };
+
+    const playPad = (freqs: number[], when: number, dur: number) => {
+      const c = ctxRef.current; const m = masterRef.current;
+      if (!c || !m) return;
+      const g = c.createGain();
+      g.gain.setValueAtTime(0, when);
+      g.gain.linearRampToValueAtTime(0.05, when + 0.6);
+      g.gain.linearRampToValueAtTime(0.04, when + dur - 0.6);
+      g.gain.linearRampToValueAtTime(0, when + dur);
+      g.connect(m);
+      freqs.forEach((f) => {
+        const o = c.createOscillator(); o.type = "sine"; o.frequency.value = f;
+        o.connect(g); o.start(when); o.stop(when + dur + 0.05);
+      });
     };
 
     const loop = () => {
       const c = ctxRef.current; if (!c) return;
-      let t = c.currentTime + 0.1;
+      const t = c.currentTime + 0.1;
       let total = 0;
-      melody.forEach(([f, d]) => { playNote(f, t + total, d * 1.4); total += d; });
+      melody.forEach(([f, d]) => { playNote(f, t + total, d * beat * 1.1); total += d * beat; });
+      // chord pad cycle across the loop
+      const chordDur = total / chords.length;
+      chords.forEach((ch, i) => playPad(ch, t + i * chordDur, chordDur));
       const id = window.setTimeout(loop, total * 1000);
       timersRef.current.push(id);
     };
     loop();
 
-    // soft fade in
-    master.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 2);
+    // gentle fade in
+    master.gain.linearRampToValueAtTime(0.55, ctx.currentTime + 3);
   };
 
   const stop = () => {
