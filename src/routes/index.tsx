@@ -369,8 +369,11 @@ function Index() {
           </section>
         </Reveal>
 
-        <footer className="text-center pb-10 pt-12">
+        <footer className="relative pb-10 pt-12 text-center">
           <p className="font-script text-xl text-pink-600/70">Made with genuine feelings ✨</p>
+          <p className="font-script text-base text-pink-600/70 absolute bottom-3 right-4">
+            — from Rahul Khuman 💗
+          </p>
         </footer>
       </main>
 
