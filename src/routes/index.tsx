@@ -264,8 +264,6 @@ function Index() {
   const [scrollY, setScrollY] = useState(0);
   const [burst, setBurst] = useState<{ x: number; y: number } | null>(null);
   const [popup, setPopup] = useState(false);
-  const music = useAmbientMusic();
-
   useEffect(() => {
     const t = setTimeout(() => setLoaded(true), 1800);
     const onScroll = () => setScrollY(window.scrollY);
@@ -288,19 +286,6 @@ function Index() {
       <MoleculePattern />
       <Sparkles />
       <Petals />
-
-      {/* Music toggle */}
-      <button
-        onClick={music.toggle}
-        aria-label="Toggle music"
-        className="fixed top-5 right-5 z-50 glass-card rounded-full w-12 h-12 flex items-center justify-center text-pink-700 hover:scale-110 transition-transform"
-      >
-        {music.on ? (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>
-        ) : (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12A4.5 4.5 0 0 0 14 8v2.2l2.45 2.45a4.4 4.4 0 0 0 .05-.65zM19 12a7 7 0 0 1-.6 2.82l1.5 1.5A8.95 8.95 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.51-1.42.93-2.25 1.17v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>
-        )}
-      </button>
 
       <main className="relative z-10 px-4 sm:px-6 py-16 sm:py-24 max-w-3xl mx-auto">
         {/* Hero */}
