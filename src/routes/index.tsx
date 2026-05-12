@@ -376,13 +376,6 @@ function Index() {
 
       <PetalBurst origin={burst} />
 
-      {/* Signature corner */}
-      <div className="fixed bottom-4 right-4 z-40 pointer-events-none">
-        <p className="font-script text-sm sm:text-base text-pink-600/70 drop-shadow-[0_1px_4px_rgba(255,255,255,0.6)]">
-          — from Rahul Khuman 💗
-        </p>
-      </div>
-
       {/* Popup */}
       <div className={`fixed inset-0 z-[90] flex items-center justify-center px-4 transition-opacity duration-500 ${popup ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
         <div className="absolute inset-0 bg-pink-200/30 backdrop-blur-sm" onClick={() => setPopup(false)} />
