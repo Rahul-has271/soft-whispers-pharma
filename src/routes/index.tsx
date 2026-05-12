@@ -371,6 +371,7 @@ function Index() {
 
         <footer className="text-center pb-10 pt-12">
           <p className="font-script text-xl text-pink-600/70">Made with genuine feelings ✨</p>
+          <p className="font-script text-base text-pink-500/60 mt-2">Made by Rahul Khuman 💗</p>
         </footer>
       </main>
 
