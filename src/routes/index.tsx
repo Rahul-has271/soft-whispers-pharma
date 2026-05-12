@@ -13,18 +13,38 @@ export const Route = createFileRoute("/")({
 
 /* ---------- Background layers ---------- */
 function Petals() {
-  const petals = Array.from({ length: 22 });
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  const items = Array.from({ length: 24 });
+  const palette = [
+    { a: "#fbcfe8", b: "#f9a8d4" }, // pink
+    { a: "#fecaca", b: "#fda4af" }, // rose
+    { a: "#ddd6fe", b: "#c4b5fd" }, // lavender
+    { a: "#bbf7d0", b: "#86efac" }, // mint clinical
+    { a: "#bfdbfe", b: "#93c5fd" }, // soft blue
+  ];
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      {petals.map((_, i) => {
+      {items.map((_, i) => {
         const left = Math.random() * 100;
-        const dur = 14 + Math.random() * 16;
-        const delay = -Math.random() * 20;
-        const size = 14 + Math.random() * 22;
-        const hue = ["#fbcfe8", "#fda4af", "#f9a8d4", "#fecaca", "#e9d5ff"][i % 5];
+        const dur = 18 + Math.random() * 18;
+        const delay = -Math.random() * 24;
+        const size = 18 + Math.random() * 26;
+        const rot = Math.random() * 360;
+        const c = palette[i % palette.length];
+        // capsule pill
         return (
-          <svg key={i} className="petal absolute" style={{ left: `${left}%`, top: 0, width: size, height: size, animationDuration: `${dur}s`, animationDelay: `${delay}s` }} viewBox="0 0 32 32">
-            <path d="M16 2 C22 8, 28 14, 16 30 C4 14, 10 8, 16 2 Z" fill={hue} opacity="0.85" />
+          <svg key={i} className="petal absolute" style={{ left: `${left}%`, top: 0, width: size * 1.6, height: size * 0.7, animationDuration: `${dur}s`, animationDelay: `${delay}s`, transform: `rotate(${rot}deg)` }} viewBox="0 0 64 28">
+            <defs>
+              <clipPath id={`cap${i}`}><rect x="0" y="0" width="64" height="28" rx="14" /></clipPath>
+            </defs>
+            <g clipPath={`url(#cap${i})`}>
+              <rect x="0" y="0" width="32" height="28" fill={c.a} opacity="0.85" />
+              <rect x="32" y="0" width="32" height="28" fill={c.b} opacity="0.9" />
+            </g>
+            <rect x="0.5" y="0.5" width="63" height="27" rx="13.5" fill="none" stroke="#9d174d" strokeOpacity="0.25" />
+            <ellipse cx="14" cy="9" rx="6" ry="2" fill="white" opacity="0.55" />
           </svg>
         );
       })}
@@ -33,6 +53,9 @@ function Petals() {
 }
 
 function Sparkles() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
   const dots = Array.from({ length: 40 });
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
@@ -57,18 +80,38 @@ function Sparkles() {
 
 function MoleculePattern() {
   return (
-    <svg className="pointer-events-none fixed inset-0 w-full h-full opacity-[0.07] z-0" xmlns="http://www.w3.org/2000/svg">
+    <svg className="pointer-events-none fixed inset-0 w-full h-full opacity-[0.11] z-0" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <pattern id="mol" x="0" y="0" width="180" height="180" patternUnits="userSpaceOnUse">
-          <circle cx="20" cy="20" r="4" fill="#9d174d" />
-          <circle cx="90" cy="60" r="4" fill="#9d174d" />
-          <circle cx="160" cy="30" r="4" fill="#9d174d" />
-          <circle cx="60" cy="140" r="4" fill="#9d174d" />
-          <circle cx="140" cy="120" r="4" fill="#9d174d" />
-          <line x1="20" y1="20" x2="90" y2="60" stroke="#9d174d" strokeWidth="1" />
-          <line x1="90" y1="60" x2="160" y2="30" stroke="#9d174d" strokeWidth="1" />
-          <line x1="90" y1="60" x2="60" y2="140" stroke="#9d174d" strokeWidth="1" />
-          <line x1="60" y1="140" x2="140" y2="120" stroke="#9d174d" strokeWidth="1" />
+        {/* hexagonal molecule + bonds */}
+        <pattern id="mol" x="0" y="0" width="220" height="220" patternUnits="userSpaceOnUse">
+          <g stroke="#9d174d" strokeWidth="1.1" fill="none">
+            <polygon points="60,30 95,50 95,90 60,110 25,90 25,50" />
+            <line x1="95" y1="50" x2="130" y2="30" />
+            <line x1="95" y1="90" x2="130" y2="110" />
+            <line x1="25" y1="90" x2="-10" y2="110" />
+          </g>
+          <g fill="#9d174d">
+            <circle cx="60" cy="30" r="3" />
+            <circle cx="95" cy="50" r="3" />
+            <circle cx="95" cy="90" r="3" />
+            <circle cx="60" cy="110" r="3" />
+            <circle cx="25" cy="90" r="3" />
+            <circle cx="25" cy="50" r="3" />
+            <circle cx="130" cy="30" r="3" />
+            <circle cx="130" cy="110" r="3" />
+          </g>
+          {/* medical plus crosses */}
+          <g fill="#9d174d" opacity="0.7">
+            <rect x="170" y="150" width="4" height="20" rx="1" />
+            <rect x="162" y="158" width="20" height="4" rx="1" />
+            <rect x="20" y="180" width="3" height="14" rx="1" />
+            <rect x="14.5" y="185.5" width="14" height="3" rx="1" />
+          </g>
+          {/* tiny capsule */}
+          <g transform="translate(150,180) rotate(25)">
+            <rect x="0" y="0" width="36" height="12" rx="6" fill="none" stroke="#9d174d" strokeWidth="1" />
+            <line x1="18" y1="0" x2="18" y2="12" stroke="#9d174d" strokeWidth="1" />
+          </g>
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill="url(#mol)" />
