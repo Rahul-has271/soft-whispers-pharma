@@ -371,11 +371,17 @@ function Index() {
 
         <footer className="text-center pb-10 pt-12">
           <p className="font-script text-xl text-pink-600/70">Made with genuine feelings ✨</p>
-          <p className="font-script text-base text-pink-500/60 mt-2">Made by Rahul Khuman 💗</p>
         </footer>
       </main>
 
       <PetalBurst origin={burst} />
+
+      {/* Signature corner */}
+      <div className="fixed bottom-4 right-4 z-40 pointer-events-none">
+        <p className="font-script text-sm sm:text-base text-pink-600/70 drop-shadow-[0_1px_4px_rgba(255,255,255,0.6)]">
+          — from Rahul Khuman 💗
+        </p>
+      </div>
 
       {/* Popup */}
       <div className={`fixed inset-0 z-[90] flex items-center justify-center px-4 transition-opacity duration-500 ${popup ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
