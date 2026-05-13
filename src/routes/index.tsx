@@ -37,7 +37,7 @@ function Petals() {
               animationDelay: `${delay}s`,
             }}
           >
-            💔
+            🌸
           </span>
         );
       })}
