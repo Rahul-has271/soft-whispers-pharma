@@ -16,36 +16,29 @@ function Petals() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
-  const items = Array.from({ length: 24 });
-  const palette = [
-    { a: "#fbcfe8", b: "#f9a8d4" }, // pink
-    { a: "#fecaca", b: "#fda4af" }, // rose
-    { a: "#ddd6fe", b: "#c4b5fd" }, // lavender
-    { a: "#bbf7d0", b: "#86efac" }, // mint clinical
-    { a: "#bfdbfe", b: "#93c5fd" }, // soft blue
-  ];
+  const items = Array.from({ length: 16 });
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
       {items.map((_, i) => {
         const left = Math.random() * 100;
-        const dur = 18 + Math.random() * 18;
-        const delay = -Math.random() * 24;
-        const size = 18 + Math.random() * 26;
-        const rot = Math.random() * 360;
-        const c = palette[i % palette.length];
-        // capsule pill
+        const dur = 16 + Math.random() * 14;
+        const delay = -Math.random() * 20;
+        const size = 14 + Math.random() * 10;
         return (
-          <svg key={i} className="petal absolute" style={{ left: `${left}%`, top: 0, width: size * 1.6, height: size * 0.7, animationDuration: `${dur}s`, animationDelay: `${delay}s`, transform: `rotate(${rot}deg)` }} viewBox="0 0 64 28">
-            <defs>
-              <clipPath id={`cap${i}`}><rect x="0" y="0" width="64" height="28" rx="14" /></clipPath>
-            </defs>
-            <g clipPath={`url(#cap${i})`}>
-              <rect x="0" y="0" width="32" height="28" fill={c.a} opacity="0.85" />
-              <rect x="32" y="0" width="32" height="28" fill={c.b} opacity="0.9" />
-            </g>
-            <rect x="0.5" y="0.5" width="63" height="27" rx="13.5" fill="none" stroke="#9d174d" strokeOpacity="0.25" />
-            <ellipse cx="14" cy="9" rx="6" ry="2" fill="white" opacity="0.55" />
-          </svg>
+          <span
+            key={i}
+            className="petal absolute select-none"
+            style={{
+              left: `${left}%`,
+              top: 0,
+              fontSize: size,
+              opacity: 0.75,
+              animationDuration: `${dur}s`,
+              animationDelay: `${delay}s`,
+            }}
+          >
+            💔
+          </span>
         );
       })}
     </div>
@@ -325,9 +318,6 @@ function Index() {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-dream">
       <Loader done={loaded} />
-      <BlurOrbs scrollY={scrollY} />
-      <MoleculePattern />
-      <Sparkles />
       <Petals />
 
       <main className="relative z-10 px-4 sm:px-6 py-16 sm:py-24 max-w-3xl mx-auto">
